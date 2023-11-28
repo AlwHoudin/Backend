@@ -37,14 +37,17 @@ class ProductManager {
   }
 
   getProductById(id) {
-    const product = this.products.find((product) => product.id === id);
-    if (!product) {
-      console.error("Producto no encontrado.");
+    try {
+      const product = this.products.find((product) => product.id === id);
+      if (!product) {
+        throw new Error("Producto no encontrado.");
+      }
+      return product;
+    } catch (error) {
+      return error.message;
     }
-    return product;
   }
 }
-
 const manager = new ProductManager();
 manager.addProduct(
   "Producto 1",
