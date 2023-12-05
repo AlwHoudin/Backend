@@ -1,9 +1,9 @@
 const express = require('express');
-const ProductManager = require('./ProductManager'); // Asegúrate de que la ruta sea correcta
+const ProductManager = require('./ProductManager'); 
 const app = express();
 const PORT = 3000;
 
-const productManager = new ProductManager('./products.json'); // Asegúrate de que la ruta sea correcta
+const productManager = new ProductManager('./products.json'); 
 
 app.get('/products', async (req, res) => {
   try {
