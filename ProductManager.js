@@ -1,70 +1,46 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 
 class ProductManager {
   constructor(filePath) {
     this.filePath = filePath;
-    this.products = this.readProductsFromFile() || [];
-    this.productId = this.generateNextId();
   }
 
-  readProductsFromFile() {
+  async readProductsFromFile() {
     try {
-      const data = fs.readFileSync(this.filePath, 'utf8');
+      const data = await fs.readFile(this.filePath, 'utf8');
       return JSON.parse(data);
     } catch (error) {
-      console.error('Error reading file:', error);
-      return null;
+      throw new Error('Error reading file');
     }
   }
 
-  saveProductsToFile() {
+  async saveProductsToFile(products) {
     try {
-      const data = JSON.stringify(this.products, null, 2);
-      fs.writeFileSync(this.filePath, data);
+      const data = JSON.stringify(products, null, 2);
+      await fs.writeFile(this.filePath, data);
     } catch (error) {
-      console.error('Error writing file:', error);
+      throw new Error('Error writing file');
     }
   }
 
-  generateNextId() {
-    return this.products.length > 0 ? Math.max(...this.products.map(product => product.id)) + 1 : 1;
-  }
-
-  addProduct(newProduct) {
-    newProduct.id = this.productId++;
-    this.products.push(newProduct);
-    this.saveProductsToFile();
-  }
-
-  getProducts() {
-    return this.products;
-  }
-
-  getProductById(id) {
-    const product = this.products.find(product => product.id === id);
-    if (!product) {
-      console.error('Product not found.');
-    }
-    return product;
-  }
-
-  updateProduct(id, updatedFields) {
-    const productIndex = this.products.findIndex(product => product.id === id);
-    if (productIndex !== -1) {
-      this.products[productIndex] = { ...this.products[productIndex], ...updatedFields };
-      this.saveProductsToFile();
-    } else {
-      console.error('Product not found.');
+  async getProducts(limit) {
+    try {
+      const products = await this.readProductsFromFile();
+      if (limit) {
+        return products.slice(0, limit);
+      }
+      return products;
+    } catch (error) {
+      throw new Error('Error fetching products');
     }
   }
 
-  deleteProduct(id) {
-    const updatedProducts = this.products.filter(product => product.id !== id);
-    if (updatedProducts.length !== this.products.length) {
-      this.products = updatedProducts;
-      this.saveProductsToFile();
-    } else {
-      console.error('Product not found.');
+  async getProductById(id) {
+    try {
+      const products = await this.readProductsFromFile();
+      return products.find(product => product.id === id);
+    } catch (error) {
+      throw new Error('Error fetching product by ID');
     }
   }
 }
